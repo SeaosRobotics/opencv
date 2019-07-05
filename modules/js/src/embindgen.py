@@ -84,7 +84,7 @@ ignore_list = ['locate',  #int&
                'minEnclosingCircle',  #float&
                'checkRange',
                'minMaxLoc',   #double*
-               'floodFill',
+               'floodFill', # special case, implemented in core_bindings.cpp
                'phaseCorrelate',
                'randShuffle',
                'calibrationMatrixValues', #double&
@@ -112,7 +112,8 @@ imgproc = {'': ['Canny', 'GaussianBlur', 'Laplacian', 'HoughLines', 'HoughLinesP
                 'goodFeaturesToTrack','grabCut','initUndistortRectifyMap', 'integral','integral2', 'isContourConvex', 'line', \
                 'matchShapes', 'matchTemplate','medianBlur', 'minAreaRect', 'minEnclosingCircle', 'moments', 'morphologyEx', \
                 'pointPolygonTest', 'putText','pyrDown','pyrUp','rectangle','remap', 'resize','sepFilter2D','threshold', \
-                'undistort','warpAffine','warpPerspective','watershed'],
+                'undistort','warpAffine','warpPerspective','watershed', \
+                'fillPoly', 'fillConvexPoly'],
            'CLAHE': ['apply', 'collectGarbage', 'getClipLimit', 'getTilesGridSize', 'setClipLimit', 'setTilesGridSize']}
 
 objdetect = {'': ['groupRectangles'],
@@ -142,6 +143,8 @@ features2d = {'Feature2D': ['detect', 'compute', 'detectAndCompute', 'descriptor
               'BFMatcher': ['isMaskSupported', 'create'],
               '': ['drawKeypoints', 'drawMatches']}
 
+calib3d = {'': ['findHomography']}
+
 def makeWhiteList(module_list):
     wl = {}
     for m in module_list:
@@ -152,7 +155,7 @@ def makeWhiteList(module_list):
                 wl[k] = m[k]
     return wl
 
-white_list = makeWhiteList([core, imgproc, objdetect, video, dnn, features2d])
+white_list = makeWhiteList([core, imgproc, objdetect, video, dnn, features2d, calib3d])
 
 # Features to be exported
 export_enums = False
