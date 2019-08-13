@@ -53,35 +53,6 @@ if(NOT DEFINED CMAKE_INSTALL_PREFIX)
   endif()
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
-  set(WINRT TRUE)
-endif()
-
-if(WINRT)
-  add_definitions(-DWINRT -DNO_GETENV)
-
-  # Making definitions available to other configurations and
-  # to filter dependency restrictions at compile time.
-  if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone)
-    set(WINRT_PHONE TRUE)
-    add_definitions(-DWINRT_PHONE)
-  elseif(CMAKE_SYSTEM_NAME MATCHES WindowsStore)
-    set(WINRT_STORE TRUE)
-    add_definitions(-DWINRT_STORE)
-  endif()
-
-  if(CMAKE_SYSTEM_VERSION MATCHES 10)
-    set(WINRT_10 TRUE)
-    add_definitions(-DWINRT_10)
-  elseif(CMAKE_SYSTEM_VERSION MATCHES 8.1)
-    set(WINRT_8_1 TRUE)
-    add_definitions(-DWINRT_8_1)
-  elseif(CMAKE_SYSTEM_VERSION MATCHES 8.0)
-    set(WINRT_8_0 TRUE)
-    add_definitions(-DWINRT_8_0)
-  endif()
-endif()
-
 if(POLICY CMP0026)
   cmake_policy(SET CMP0026 NEW)
 endif()
@@ -135,6 +106,39 @@ endif()
 enable_testing()
 
 project(OpenCV CXX C)
+
+if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
+  set(WINRT TRUE)
+endif()
+
+if(WINRT OR WINCE)
+  add_definitions(-DNO_GETENV)
+endif()
+
+if(WINRT)
+  add_definitions(-DWINRT)
+
+  # Making definitions available to other configurations and
+  # to filter dependency restrictions at compile time.
+  if(CMAKE_SYSTEM_NAME MATCHES WindowsPhone)
+    set(WINRT_PHONE TRUE)
+    add_definitions(-DWINRT_PHONE)
+  elseif(CMAKE_SYSTEM_NAME MATCHES WindowsStore)
+    set(WINRT_STORE TRUE)
+    add_definitions(-DWINRT_STORE)
+  endif()
+
+  if(CMAKE_SYSTEM_VERSION MATCHES 10)
+    set(WINRT_10 TRUE)
+    add_definitions(-DWINRT_10)
+  elseif(CMAKE_SYSTEM_VERSION MATCHES 8.1)
+    set(WINRT_8_1 TRUE)
+    add_definitions(-DWINRT_8_1)
+  elseif(CMAKE_SYSTEM_VERSION MATCHES 8.0)
+    set(WINRT_8_0 TRUE)
+    add_definitions(-DWINRT_8_0)
+  endif()
+endif()
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -236,8 +240,8 @@ OCV_OPTION(WITH_AVFOUNDATION "Use AVFoundation for Video I/O (iOS/Mac)" ON
   VISIBLE_IF APPLE
   VERIFY HAVE_AVFOUNDATION)
 OCV_OPTION(WITH_CARBON "Use Carbon for UI instead of Cocoa (OBSOLETE)" OFF
-  VISIBLE_IF APPLE
-  VERIFY HAVE_CARBON OR HAVE_COCOA)
+  VISIBLE_IF (APPLE OR HAVE_COCOA)
+  VERIFY HAVE_CARBON)
 OCV_OPTION(WITH_CAROTENE "Use NVidia carotene acceleration library for ARM platform" ON
   VISIBLE_IF (ARM OR AARCH64) AND NOT IOS AND NOT (CMAKE_VERSION VERSION_LESS "2.8.11"))
 OCV_OPTION(WITH_CPUFEATURES "Use cpufeatures Android library" ON
@@ -471,7 +475,7 @@ OCV_OPTION(INSTALL_TESTS            "Install accuracy and performance test binar
 # OpenCV build options
 # ===================================================
 OCV_OPTION(ENABLE_CCACHE              "Use ccache"                                               (UNIX AND NOT IOS AND (CMAKE_GENERATOR MATCHES "Makefile" OR CMAKE_GENERATOR MATCHES "Ninja")) )
-OCV_OPTION(ENABLE_PRECOMPILED_HEADERS "Use precompiled headers"                                  ON IF (MSVC OR (NOT IOS AND NOT CMAKE_CROSSCOMPILING) ) )
+OCV_OPTION(ENABLE_PRECOMPILED_HEADERS "Use precompiled headers"                                  MSVC IF (MSVC OR (NOT IOS AND NOT CMAKE_CROSSCOMPILING) ) )
 OCV_OPTION(ENABLE_SOLUTION_FOLDERS    "Solution folder in Visual Studio or in other IDEs"        (MSVC_IDE OR CMAKE_GENERATOR MATCHES Xcode) )
 OCV_OPTION(ENABLE_PROFILING           "Enable profiling in the GCC compiler (Add flags: -g -pg)" OFF  IF CV_GCC )
 OCV_OPTION(ENABLE_COVERAGE            "Enable coverage collection with  GCov"                    OFF  IF CV_GCC )
