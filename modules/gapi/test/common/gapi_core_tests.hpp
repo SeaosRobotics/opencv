@@ -73,7 +73,7 @@ inline std::ostream& operator<<(std::ostream& os, bitwiseOp op)
 // 1. Default parameters: int type, cv::Size sz, int dtype, getCompileArgs() function
 //      - available in test body
 // 2. Input/output matrices will be initialized by initMatsRandU (in this fixture)
-// 3. Specific parameters: opType, testWithScalar, scale, doReverseOp of correponding types
+// 3. Specific parameters: opType, testWithScalar, scale, doReverseOp of corresponding types
 //      - created (and initialized) automatically
 //      - available in test body
 // Note: all parameter _values_ (e.g. type CV_8UC3) are set via INSTANTIATE_TEST_CASE_P macro
@@ -100,7 +100,7 @@ GAPI_TEST_FIXTURE(AddWeightedTest, initMatsRandU, FIXTURE_API(CompareMats), 1, c
 GAPI_TEST_FIXTURE(NormTest, initMatrixRandU, FIXTURE_API(CompareScalars,NormTypes), 2,
     cmpF, opType)
 GAPI_TEST_FIXTURE(IntegralTest, initNothing, <>, 0)
-GAPI_TEST_FIXTURE(ThresholdTest, initMatrixRandU, FIXTURE_API(int), 1, tt)
+GAPI_TEST_FIXTURE(ThresholdTest, initMatrixRandU, FIXTURE_API(int, cv::Scalar), 2, tt, maxval)
 GAPI_TEST_FIXTURE(ThresholdOTTest, initMatrixRandU, FIXTURE_API(int), 1, tt)
 GAPI_TEST_FIXTURE(InRangeTest, initMatrixRandU, <>, 0)
 GAPI_TEST_FIXTURE(Split3Test, initMatrixRandU, <>, 0)

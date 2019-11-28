@@ -25,12 +25,12 @@ namespace opencv_test
 // 1. Default parameters: int type, cv::Size sz, int dtype, getCompileArgs() function
 //      - available in test body
 // 2. Input/output matrices will be initialized by initMatrixRandN (in this fixture)
-// 3. Specific parameters: cmpF, kernSize, borderType of correponding types
+// 3. Specific parameters: cmpF, kernSize, borderType of corresponding types
 //      - created (and initialized) automatically
 //      - available in test body
 // Note: all parameter _values_ (e.g. type CV_8UC3) are set via INSTANTIATE_TEST_CASE_P macro
-GAPI_TEST_FIXTURE(Filter2DTest, initMatrixRandN, FIXTURE_API(CompareMats,int,int), 3,
-    cmpF, kernSize, borderType)
+GAPI_TEST_FIXTURE(Filter2DTest, initMatrixRandN, FIXTURE_API(CompareMats,cv::Size,int), 3,
+    cmpF, filterSize, borderType)
 GAPI_TEST_FIXTURE(BoxFilterTest, initMatrixRandN, FIXTURE_API(CompareMats,int,int), 3,
     cmpF, filterSize, borderType)
 GAPI_TEST_FIXTURE(SepFilterTest, initMatrixRandN, FIXTURE_API(CompareMats,int), 2, cmpF, kernSize)
