@@ -449,7 +449,7 @@ Returned value is a string containing space separated list of CPU features with 
 
 Example: `SSE SSE2 SSE3 *SSE4.1 *SSE4.2 *FP16 *AVX *AVX2 *AVX512-SKX?`
 */
-CV_EXPORTS std::string getCPUFeaturesLine();
+CV_EXPORTS_W std::string getCPUFeaturesLine();
 
 /** @brief Returns the number of logical CPUs available for the process.
  */
@@ -514,6 +514,43 @@ static inline int roundUp(int a, unsigned int b)
 static inline size_t roundUp(size_t a, unsigned int b)
 {
     return a + b - 1 - (a + b - 1) % b;
+}
+
+/** @brief Alignment check of passed values
+
+Usage: `isAligned<sizeof(int)>(...)`
+
+@note Alignment(N) must be a power of 2 (2**k, 2^k)
+*/
+template<int N, typename T> static inline
+bool isAligned(const T& data)
+{
+    CV_StaticAssert((N & (N - 1)) == 0, "");  // power of 2
+    return (((size_t)data) & (N - 1)) == 0;
+}
+/** @overload */
+template<int N> static inline
+bool isAligned(const void* p1)
+{
+    return isAligned<N>((size_t)p1);
+}
+/** @overload */
+template<int N> static inline
+bool isAligned(const void* p1, const void* p2)
+{
+    return isAligned<N>(((size_t)p1)|((size_t)p2));
+}
+/** @overload */
+template<int N> static inline
+bool isAligned(const void* p1, const void* p2, const void* p3)
+{
+    return isAligned<N>(((size_t)p1)|((size_t)p2)|((size_t)p3));
+}
+/** @overload */
+template<int N> static inline
+bool isAligned(const void* p1, const void* p2, const void* p3, const void* p4)
+{
+    return isAligned<N>(((size_t)p1)|((size_t)p2)|((size_t)p3)|((size_t)p4));
 }
 
 /** @brief Enables or disables the optimized code.

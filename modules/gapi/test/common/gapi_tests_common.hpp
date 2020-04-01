@@ -74,7 +74,7 @@ public:
     cv::Scalar initScalarRandU(unsigned upper)
     {
         auto& rng = cv::theRNG();
-        double s1 = rng(upper);
+        double s1 = rng(upper);  // FIXIT: RNG result is 'int', not double
         double s2 = rng(upper);
         double s3 = rng(upper);
         double s4 = rng(upper);
@@ -96,8 +96,24 @@ public:
         in_mat2 = cv::Mat(sz_in, type);
 
         sc = initScalarRandU(100);
-        cv::randu(in_mat1, cv::Scalar::all(0), cv::Scalar::all(255));
-        cv::randu(in_mat2, cv::Scalar::all(0), cv::Scalar::all(255));
+
+        // Details: https://github.com/opencv/opencv/pull/16083
+        //if (CV_MAT_DEPTH(type) < CV_32F)
+        if (1)
+        {
+            cv::randu(in_mat1, cv::Scalar::all(0), cv::Scalar::all(255));
+            cv::randu(in_mat2, cv::Scalar::all(0), cv::Scalar::all(255));
+        }
+        else
+        {
+            const int fscale = 256;  // avoid bits near ULP, generate stable test input
+            Mat in_mat32s(in_mat1.size(), CV_MAKE_TYPE(CV_32S, CV_MAT_CN(type)));
+            cv::randu(in_mat32s, cv::Scalar::all(0), cv::Scalar::all(255 * fscale));
+            in_mat32s.convertTo(in_mat1, type, 1.0f / fscale, 0);
+
+            cv::randu(in_mat32s, cv::Scalar::all(0), cv::Scalar::all(255 * fscale));
+            in_mat32s.convertTo(in_mat2, type, 1.0f / fscale, 0);
+        }
 
         if (createOutputMatrices)
         {
@@ -110,7 +126,17 @@ public:
         in_mat1 = cv::Mat(sz_in, type);
 
         sc = initScalarRandU(100);
-        cv::randu(in_mat1, cv::Scalar::all(0), cv::Scalar::all(255));
+        if (CV_MAT_DEPTH(type) < CV_32F)
+        {
+            cv::randu(in_mat1, cv::Scalar::all(0), cv::Scalar::all(255));
+        }
+        else
+        {
+            const int fscale = 256;  // avoid bits near ULP, generate stable test input
+            Mat in_mat32s(in_mat1.size(), CV_MAKE_TYPE(CV_32S, CV_MAT_CN(type)));
+            cv::randu(in_mat32s, cv::Scalar::all(0), cv::Scalar::all(255 * fscale));
+            in_mat32s.convertTo(in_mat1, type, 1.0f / fscale, 0);
+        }
 
         if (createOutputMatrices)
         {
@@ -131,28 +157,6 @@ public:
 
     // empty function intended to show that nothing is to be initialized via TestFunctional methods
     void initNothing(int, cv::Size, int, bool = true) {}
-
-    static cv::Mat nonZeroPixels(const cv::Mat& mat)
-    {
-        int channels = mat.channels();
-        std::vector<cv::Mat> split(channels);
-        cv::split(mat, split);
-        cv::Mat result;
-        for (int c=0; c < channels; c++)
-        {
-            if (c == 0)
-                result = split[c] != 0;
-            else
-                result = result | (split[c] != 0);
-        }
-        return result;
-    }
-
-    static int countNonZeroPixels(const cv::Mat& mat)
-    {
-        return cv::countNonZero( nonZeroPixels(mat) );
-    }
-
 };
 
 template<class T>
@@ -427,7 +431,7 @@ public:
         Mat diff;
         cv::absdiff(in1, in2, diff);
         Mat err_mask = diff > _tol;
-        int err_points = cv::countNonZero(err_mask.reshape(1));
+        int err_points = (cv::countNonZero)(err_mask.reshape(1));
         double max_err_points = _percent * std::max((size_t)1000, in1.total());
         if (err_points > max_err_points)
         {
