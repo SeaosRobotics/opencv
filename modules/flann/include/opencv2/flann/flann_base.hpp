@@ -31,8 +31,9 @@
 #ifndef OPENCV_FLANN_BASE_HPP_
 #define OPENCV_FLANN_BASE_HPP_
 
+//! @cond IGNORED
+
 #include <vector>
-#include <cassert>
 #include <cstdio>
 
 #include "general.h"
@@ -292,4 +293,7 @@ int hierarchicalClustering(const Matrix<typename Distance::ElementType>& points,
 }
 
 }
+
+//! @endcond
+
 #endif /* OPENCV_FLANN_BASE_HPP_ */
